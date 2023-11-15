@@ -1,13 +1,15 @@
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import type { OpenAI } from "openai";
+import {inspect} from 'util';
+
+const fullPrint = (msg: any) => console.log(inspect(msg, false, null, true /* enable colors */))
 
 interface Steps<T = void, Omitted extends string = never> {
   input<S extends z.ZodType<any, any>>(schema: S): Omit<Steps<z.infer<S>, Omitted | "input">, "input" | Omitted>;
   run(func: (input: T extends void ? never : T) => unknown): Omit<Steps<T, Omitted | "run">, "run" | "input" | Omitted> & CompletedTool;
   describe(description: string): Omit<Steps<T, Omitted | "describe">, Omitted | "describe">;
 }
-
 
 interface Data {
   func: (input: any) => unknown;
@@ -53,12 +55,12 @@ export function tools<T>(t: { [K in keyof T]: CompletedTool }) {
 }
 
 const thing = tool()
-  .input(z.string())
+  .input(z.object({ name: z.string() }))
   .describe("Converts input to uppercase")
-  .run(input => input.toUpperCase());
+  .run(({ name }) => name.toUpperCase());
 
-console.log(
-  tools({
+fullPrint(
+   tools({
     getWeather: tool()
       .input(z.string())
       .describe("Gets the weather")
@@ -68,5 +70,6 @@ console.log(
           city,
         };
       }),
+      thing
   })
 );
