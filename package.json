@@ -1,5 +1,5 @@
 {
-  "name": "zod-to-openai-tool",
+  "name": "@ingenuity/zod-ai",
   "version": "0.1.0",
   "description": "",
   "type": "module",
