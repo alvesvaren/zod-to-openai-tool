@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import type { OpenAI } from "openai";
-import {inspect} from 'util';
+import { inspect } from "util";
 
-const fullPrint = (msg: any) => console.log(inspect(msg, false, null, true /* enable colors */))
+const fullPrint = (msg: any) => console.log(inspect(msg, false, null, true /* enable colors */));
 
 interface Steps<T = void, Omitted extends string = never> {
   input<S extends z.ZodType<any, any>>(schema: S): Omit<Steps<z.infer<S>, Omitted | "input">, "input" | Omitted>;
@@ -49,8 +49,8 @@ function tool<T = void>(): Steps<T> & CompletedTool {
 export function tools<T>(t: { [K in keyof T]: CompletedTool }) {
   type Tool = (typeof t)[keyof T];
   return Object.entries<Tool>(t).map(([name, tool]) => {
-    const jsonSchema = zodToJsonSchema(tool.__getData().schema);
-    return { name, description: tool.__getData().description, parameters: jsonSchema };
+    const parameters = zodToJsonSchema(tool.__getData().schema);
+    return { name, description: tool.__getData().description, parameters };
   });
 }
 
@@ -60,7 +60,7 @@ const thing = tool()
   .run(({ name }) => name.toUpperCase());
 
 fullPrint(
-   tools({
+  tools({
     getWeather: tool()
       .input(z.string())
       .describe("Gets the weather")
@@ -70,6 +70,6 @@ fullPrint(
           city,
         };
       }),
-      thing
+    thing,
   })
 );
