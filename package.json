@@ -1,12 +1,12 @@
 {
   "name": "zod-to-openai-tool",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Create tools from zod schemas to use with OpenAI Assistants",
   "repository": "https://github.com/alvesvaren/zod-to-openai-tool",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch examples.ts",
+    "test": "vitest",
+    "dev": "tsx watch examples/basic-usage.ts",
     "build": "tsc && tsc -p tsconfig-cjs.json",
     "prepublish": "npm run build"
   },
@@ -36,6 +36,7 @@
   "devDependencies": {
     "@types/node": "^20.9.1",
     "openai": "^4.19.0",
+    "prettier": "^3.1.0",
     "tsx": "^4.1.2",
     "typescript": "^5.2.2",
     "vitest": "^0.34.6",

@@ -1,11 +1,18 @@
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import type { OpenAI } from "openai";
-
+import { deepRemoveKey } from "./utils.js";
 interface Steps<T = void, Omitted extends string = never> {
-  input<S extends z.ZodType<any, any>>(schema: S extends z.AnyZodObject ? S : never): Omit<Steps<z.infer<S>, Omitted | "input">, "input" | Omitted>;
-  run(func: (input: T extends void ? never : T) => unknown): Omit<Steps<T, Omitted | "run">, "run" | "input" | Omitted> & CompletedTool;
-  describe(description: string): Omit<Steps<T, Omitted | "describe">, Omitted | "describe">;
+  input<S extends z.ZodType<any, any>>(
+    schema: S extends z.AnyZodObject ? S : never,
+  ): Omit<Steps<z.infer<S>, Omitted | "input">, "input" | Omitted> &
+    InternalTool;
+  run(
+    func: (input: T extends void ? never : T) => unknown,
+  ): Omit<Steps<T, Omitted | "run">, "run" | "input" | Omitted> & InternalTool;
+  describe(
+    description: string,
+  ): Omit<Steps<T, Omitted | "describe">, Omitted | "describe"> & InternalTool;
 }
 
 interface Data {
@@ -14,11 +21,12 @@ interface Data {
   description: string | undefined;
 }
 
-interface CompletedTool {
-  __data: Data;
+interface InternalTool {
+  _data: Data;
+  _parameters: OpenAI.Beta.AssistantCreateParams.AssistantToolsFunction["function"]["parameters"];
 }
 
-export type Tool<T = void> = Steps<T> & CompletedTool;
+export type Tool<T = void> = Steps<T> & InternalTool;
 
 /**
  * Creates a tool for use with openai assistants
@@ -37,7 +45,11 @@ export type Tool<T = void> = Steps<T> & CompletedTool;
  * @returns A `Tool` that can be used with `createTools()`.
  */
 export function tool<T = void>(): Tool<T> {
-  const data: Data = { schema: z.object({}), func: () => {}, description: undefined };
+  const data: Data = {
+    schema: z.object({}),
+    func: () => {},
+    description: undefined,
+  };
 
   return {
     input(s) {
@@ -53,8 +65,13 @@ export function tool<T = void>(): Tool<T> {
       return this;
     },
     /** @internal */
-    get __data() {
+    get _data() {
       return data;
+    },
+    /** @internal */
+    get _parameters() {
+      const { $schema, ...parameters } = zodToJsonSchema(data.schema);
+      return deepRemoveKey(parameters, "additionalProperties");
     },
   };
 }
@@ -77,29 +94,36 @@ export function tool<T = void>(): Tool<T> {
  * });
  * ```
  */
-export function createTools<T>(tools: { [K in keyof T]: CompletedTool }) {
+export function createTools<T>(tools: { [K in keyof T]: InternalTool }) {
   type _Tool = (typeof tools)[keyof T];
   return {
-    tools: Object.entries<_Tool>(tools).map(([name, tool]): OpenAI.Beta.AssistantCreateParams.AssistantToolsFunction => {
-      const { $schema, ...parameters } = zodToJsonSchema(tool.__data.schema);
-      return {
-        type: "function",
-        function: { name, description: tool.__data.description, parameters },
-      };
-    }),
-    async processActions(data: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall[] = []) {
+    tools: Object.entries<_Tool>(tools).map(
+      ([
+        name,
+        tool,
+      ]): OpenAI.Beta.AssistantCreateParams.AssistantToolsFunction => {
+        const parameters = tool._parameters;
+        return {
+          type: "function",
+          function: { name, description: tool._data.description, parameters },
+        };
+      },
+    ),
+    async processActions(
+      data: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall[] = [],
+    ) {
       const results = await Promise.all(
         data.map(async ({ function: { arguments: args, name }, id }, i) => {
           const tool = tools[name as keyof T];
 
-          const input = await tool.__data.schema.parseAsync(JSON.parse(args));
-          const response = await tool.__data.func(input);
+          const input = await tool._data.schema.parseAsync(JSON.parse(args));
+          const response = await tool._data.func(input);
 
           return {
             tool_call_id: id,
             output: JSON.stringify(response),
           } satisfies OpenAI.Beta.Threads.Runs.RunSubmitToolOutputsParams.ToolOutput;
-        })
+        }),
       );
 
       return results;

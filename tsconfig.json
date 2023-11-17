@@ -6,6 +6,7 @@
     "target": "es2022",
     "allowJs": true,
     "resolveJsonModule": true,
+    "baseUrl": "./src",
     "moduleDetection": "force",
     "isolatedModules": true,
     /* Strictness */
@@ -24,5 +25,6 @@
     "lib": ["es2022"],
     "declarationDir": "./dist"
   },
-  "include": ["./index.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.test.ts"]
 }
