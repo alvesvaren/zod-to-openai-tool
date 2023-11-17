@@ -22,7 +22,7 @@ const assistant = await openai.beta.assistants.create({
 // Then, when the assistant uses the tools and responds with `requires_action`:
 const actions = run.required_action.submit_tool_outputs.tool_calls;
 const tool_outputs = processActions(actions);
-await openai.beta.threads.runs.submitToolOutputs(thread.id, run.id, {tool_outputs});
+await openai.beta.threads.runs.submitToolOutputs(thread.id, run.id, { tool_outputs });
 ```
 
 See the JSDoc for more information and usage. This package exports the following functions:
@@ -36,7 +36,7 @@ See the JSDoc for more information and usage. This package exports the following
 ## Tools
 
 A tool is created using the tool() function. They can then have the following properties added:
- - `input` - The input to the function (optional). This needs to be an object (z.object({}))
+ - `input` - The input to the function (optional). This needs to be an object (`z.object({})`)
  - `describe` - A description of the function (optional)
  - `run` - The function to run using the input
 
