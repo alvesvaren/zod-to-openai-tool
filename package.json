@@ -1,7 +1,8 @@
 {
   "name": "zod-to-openai-tool",
-  "version": "0.2.0",
-  "description": "",
+  "version": "0.2.1",
+  "description": "Create tools from zod schemas to use with OpenAI Assistants",
+  "repository": "https://github.com/alvesvaren/zod-to-openai-tool",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -1,6 +1,6 @@
 # zod-to-openai-tool
 
-This is a really simple package to make it easier to work with function calling in typescript and openai's new assistants API.
+Create tools from zod schemas to use with OpenAI Assistants
 
 ## Usage
 
