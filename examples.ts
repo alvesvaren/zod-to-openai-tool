@@ -18,10 +18,14 @@ const { tools, processActions } = createTools({
       date,
       weather: "sunny",
     })),
+
   exponential: tool()
     .input(z.object({ n: z.number() }))
     .describe("Exponentiates a number")
     .run(async ({ n }) => Math.exp(n)),
+
+  helloWorld: tool()
+    .run(() => "Hello, world!")
 });
 
 fullPrint(tools);
