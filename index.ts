@@ -18,7 +18,25 @@ interface CompletedTool {
   __data: Data;
 }
 
-export function tool<T = void>(): Steps<T> & CompletedTool {
+export type Tool<T = void> = Steps<T> & CompletedTool;
+
+/**
+ * Creates a tool for use with openai assistants
+ * @example
+ * ```ts
+ * const getWeather = tool()
+ *   .input(
+ *     z.object({
+ *       city: z.string(),
+ *      }))
+ *   .describe("Gets the weather")
+ *   .run(async ({ city }) => ({
+ *     weather: "sunny",
+ *   }));
+ * ```
+ * @returns A `Tool` that can be used with `createTools()`.
+ */
+export function tool<T = void>(): Tool<T> {
   const data: Data = { schema: z.object({}), func: () => {}, description: undefined };
 
   return {
@@ -41,10 +59,28 @@ export function tool<T = void>(): Steps<T> & CompletedTool {
   };
 }
 
+/**
+ * 
+ * @param tools An object containing tools created with `tool()`. Name them using the key.
+ * @returns An object containing the tools and a function to process actions.
+ * @example
+ * ```ts
+ * const { tools, processActions } = createTools({
+ *   getWeather,  // These are created with `tool()`
+ *   exponential,
+ * });
+ * 
+ * // Then use them like this:
+ * const assistant = await openai.beta.assistants.create({
+ *   tools,
+ *   //...
+ * });
+ * ```
+ */
 export function createTools<T>(tools: { [K in keyof T]: CompletedTool }) {
-  type Tool = (typeof tools)[keyof T];
+  type _Tool = (typeof tools)[keyof T];
   return {
-    tools: Object.entries<Tool>(tools).map(([name, tool]) => {
+    tools: Object.entries<_Tool>(tools).map(([name, tool]) => {
       const { $schema, ...parameters } = zodToJsonSchema(tool.__data.schema);
       return {
         type: "function",

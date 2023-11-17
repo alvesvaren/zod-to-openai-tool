@@ -1,6 +1,6 @@
 {
   "name": "zod-to-openai-tool",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "",
   "type": "module",
   "scripts": {
