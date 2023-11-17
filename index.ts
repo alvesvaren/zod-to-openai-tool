@@ -60,7 +60,7 @@ export function tool<T = void>(): Tool<T> {
 }
 
 /**
- * 
+ *
  * @param tools An object containing tools created with `tool()`. Name them using the key.
  * @returns An object containing the tools and a function to process actions.
  * @example
@@ -69,7 +69,7 @@ export function tool<T = void>(): Tool<T> {
  *   getWeather,  // These are created with `tool()`
  *   exponential,
  * });
- * 
+ *
  * // Then use them like this:
  * const assistant = await openai.beta.assistants.create({
  *   tools,
@@ -80,7 +80,7 @@ export function tool<T = void>(): Tool<T> {
 export function createTools<T>(tools: { [K in keyof T]: CompletedTool }) {
   type _Tool = (typeof tools)[keyof T];
   return {
-    tools: Object.entries<_Tool>(tools).map(([name, tool]) => {
+    tools: Object.entries<_Tool>(tools).map(([name, tool]): OpenAI.Beta.AssistantCreateParams.AssistantToolsFunction => {
       const { $schema, ...parameters } = zodToJsonSchema(tool.__data.schema);
       return {
         type: "function",

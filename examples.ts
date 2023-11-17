@@ -24,8 +24,7 @@ const { tools, processActions } = createTools({
     .describe("Exponentiates a number")
     .run(async ({ n }) => Math.exp(n)),
 
-  helloWorld: tool()
-    .run(() => "Hello, world!")
+  helloWorld: tool().run(() => "Hello, world!"),
 });
 
 fullPrint(tools);

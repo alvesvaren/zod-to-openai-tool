@@ -1,6 +1,6 @@
 {
   "name": "zod-to-openai-tool",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Create tools from zod schemas to use with OpenAI Assistants",
   "repository": "https://github.com/alvesvaren/zod-to-openai-tool",
   "type": "module",
@@ -29,8 +29,9 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.9.1",
-    "openai": "^4.18.0",
+    "openai": "^4.19.0",
     "tsx": "^4.1.2",
+    "typescript": "^5.2.2",
     "vitest": "^0.34.6",
     "zod": "^3.22.4"
   },
@@ -38,6 +39,12 @@
     "zod-to-json-schema": "^3.21.4"
   },
   "peerDependencies": {
+    "openai": "^4.19.0",
     "zod": "^3.22.4"
+  },
+  "peerDependenciesMeta": {
+    "openai": {
+      "optional": true
+    }
   }
 }

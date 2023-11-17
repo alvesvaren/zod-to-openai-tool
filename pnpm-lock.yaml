@@ -14,8 +14,8 @@ devDependencies:
     specifier: ^20.9.1
     version: 20.9.1
   openai:
-    specifier: ^4.18.0
-    version: 4.18.0
+    specifier: ^4.19.0
+    version: 4.19.0
   tsx:
     specifier: ^4.1.2
     version: 4.1.2
@@ -594,8 +594,8 @@ packages:
       whatwg-url: 5.0.0
     dev: true
 
-  /openai@4.18.0:
-    resolution: {integrity: sha512-0C+waXoU7mvp/1QZzwnmPCkq4t02VJkjL1EXn0Pd7pFuTA0Y4y1LwzSZSiF/tpxw+Pr7diHVJjbfJ8QbdZnEcA==}
+  /openai@4.19.0:
+    resolution: {integrity: sha512-cJbl0noZyAaXVKBTMMq6X5BAvP1pm2rWYDBnZes99NL+Zh5/4NmlAwyuhTZEru5SqGGZIoiYKeMPXy4bm9DI0w==}
     hasBin: true
     dependencies:
       '@types/node': 18.18.9
