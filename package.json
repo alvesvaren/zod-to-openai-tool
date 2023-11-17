@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch examples.ts",
-    "build": "tsc && tsc -p tsconfig-cjs.json"
+    "build": "tsc && tsc -p tsconfig-cjs.json",
+    "prepublish": "npm run build"
   },
   "files": [
     "dist",
