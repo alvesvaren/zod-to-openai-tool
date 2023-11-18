@@ -8,7 +8,7 @@
     "test": "vitest",
     "dev": "tsx watch examples/basic-usage.ts",
     "build": "tsc && tsc -p tsconfig-cjs.json",
-    "prepublish": "npm run build"
+    "prepublish": "pnpm run build"
   },
   "files": [
     "dist",
