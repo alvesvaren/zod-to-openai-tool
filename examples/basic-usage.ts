@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { tool, createTools } from "..";
+import { tool, createTools } from "../src";
 import { inspect } from "util";
 
 const fullPrint = (msg: any) => console.log(inspect(msg, false, null, true));

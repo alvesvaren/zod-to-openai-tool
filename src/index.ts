@@ -26,6 +26,8 @@ interface InternalTool {
   _parameters: OpenAI.Beta.AssistantCreateParams.AssistantToolsFunction["function"]["parameters"];
 }
 
+type OpenAIBuiltInTool = OpenAI.Beta.Assistant["tools"][number];
+
 export type Tool<T = void> = Steps<T> & InternalTool;
 
 /**
@@ -128,5 +130,48 @@ export function createTools<T>(tools: { [K in keyof T]: InternalTool }) {
 
       return results;
     },
+  };
+}
+
+/**
+ * Combine multiple tools into one object that can be used with an assistant.
+ * @param tools All tools to combine. You can provide tools created with `createTools()` or built in tools from the OpenAI API (CodeInterpreter and Retrieval).
+ * @returns The same object as `createTools()`, but with all tools combined.
+ * @see https://platform.openai.com/docs/assistants/tools - for more information on the OpenAI API tools.
+ * @example
+ * ```ts
+ * const tools = combineTools(
+ *   createTools({
+ *     getWeather,
+ *     exponential,
+ *   }),
+ *   { type: "code_interpreter" },
+ *   { type: "retrieval" },
+ * );
+ * ```
+ */
+export function combineTools(
+  ...tools: (ReturnType<typeof createTools> | OpenAIBuiltInTool)[]
+) {
+  const customTools = tools.filter(
+    (t): t is Exclude<typeof t, OpenAIBuiltInTool> => "tools" in t,
+  );
+  const combinedCustomTools = {
+    tools: customTools.flatMap(t => t.tools),
+    async processActions(
+      data: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall[] = [],
+    ) {
+      const results = await Promise.all(
+        customTools.map(t => t.processActions(data)),
+      );
+
+      return results.flat();
+    },
+  };
+  const builtInTools = tools.filter((t): t is OpenAIBuiltInTool => "type" in t);
+
+  return {
+    tools: [...combinedCustomTools.tools, ...builtInTools],
+    processActions: combinedCustomTools.processActions,
   };
 }

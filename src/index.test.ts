@@ -1,7 +1,7 @@
 import { it } from "vitest";
 import { describe } from "vitest";
 import { expect } from "vitest";
-import { tool, createTools } from "./index";
+import { tool, createTools, combineTools } from "./index";
 import { z } from "zod";
 import { expectTypeOf } from "vitest";
 
@@ -104,3 +104,73 @@ describe("createTools()", () => {
     ]);
   });
 });
+
+describe("combineTools()", () => {
+  it("should return an empty array if no tools are passed", () => {
+    const tools = combineTools();
+    expect(tools).toEqual({
+      processActions: expect.any(Function),
+      tools: [],
+    });
+  });
+  it("should combine tools if tools are passed", () => {
+    const tools = combineTools(
+      createTools({
+        tool: tool()
+          .run(() => {})
+          .describe("hello"),
+      }),
+      createTools({
+        anotherTool: tool()
+          .run(() => {})
+          .describe("world"),
+      }),
+    );
+    expect(tools).toEqual({
+      processActions: expect.any(Function),
+      tools: [
+        {
+          type: "function",
+          function: {
+            description: "hello",
+            name: "tool",
+            parameters: {
+              type: "object",
+              properties: {},
+            },
+          },
+        },
+        {
+          type: "function",
+          function: {
+            description: "world",
+            name: "anotherTool",
+            parameters: {
+              type: "object",
+              properties: {},
+            },
+          },
+        },
+      ],
+    });
+  });
+  it("should combine openai tools correctly too", () => {
+    const combinedTools = combineTools(
+      { type: "code_interpreter" },
+      { type: "retrieval" },
+    );
+    expect(combinedTools).toEqual({
+      processActions: expect.any(Function),
+      tools: [
+        {
+          type: "code_interpreter",
+        },
+        {
+          type: "retrieval",
+        },
+      ],
+    });
+  });
+});
+
+// TODO: Add tests for processActions

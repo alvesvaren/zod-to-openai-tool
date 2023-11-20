@@ -27,10 +27,13 @@ await openai.beta.threads.runs.submitToolOutputs(thread.id, run.id, {
 });
 ```
 
-See the JSDoc for more information and usage. This package exports the following functions:
+> See the examples folder and the JSDocs for more examples and information. 
 
-- `tool()`
-- `createTools(tools)`
+This package exports the following functions:
+
+- `tool()` - Used to create a new tool
+- `createTools(tools)` - Used to convert tools to the openai format (and give them a name)
+- `combineTools(...tools)` - Used to combine multiple tools into one (including Code Interpreter and Retrieval)
 
 ## Installation
 
