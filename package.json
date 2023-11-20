@@ -1,7 +1,7 @@
 {
   "name": "zod-to-openai-tool",
-  "version": "0.6.0",
-  "description": "Create tools from zod schemas to use with OpenAI Assistants",
+  "version": "0.6.1",
+  "description": "Easily create tools from zod schemas to use with OpenAI Assistants and Chat Completions",
   "repository": "https://github.com/alvesvaren/zod-to-openai-tool",
   "type": "module",
   "scripts": {

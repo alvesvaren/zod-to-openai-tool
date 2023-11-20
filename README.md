@@ -1,6 +1,6 @@
 # zod-to-openai-tool
 
-Create tools from zod schemas to use with OpenAI Assistants
+Easily create tools from zod schemas to use with OpenAI Assistants and Chat Completions.
 
 ## Usage
 
@@ -9,7 +9,7 @@ import { tool, createTools } from "zod-to-openai-tool";
 
 const { tools, processActions } = createTools({
   getWeather: tool()
-    .input(z.object({ city }))
+    .input(z.object({ city: z.string() }))
     .describe("Get the weather in a city")
     .run(({ city }) => `The weather in ${city} is sunny`),
 });
