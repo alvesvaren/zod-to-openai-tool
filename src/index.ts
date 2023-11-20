@@ -96,14 +96,13 @@ export function tool<T = void>(): Tool<T> {
  * });
  * ```
  */
+
 export function createTools<T>(tools: { [K in keyof T]: InternalTool }) {
   type _Tool = (typeof tools)[keyof T];
   return {
     tools: Object.entries<_Tool>(tools).map(
-      ([
-        name,
-        tool,
-      ]): OpenAI.Beta.AssistantCreateParams.AssistantToolsFunction => {
+      ([name, tool]): OpenAI.Beta.AssistantCreateParams.AssistantToolsFunction &
+        OpenAI.Chat.Completions.ChatCompletionTool => {
         const parameters = tool._parameters;
         return {
           type: "function",
@@ -111,15 +110,27 @@ export function createTools<T>(tools: { [K in keyof T]: InternalTool }) {
         };
       },
     ),
-    async processActions(
-      data: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall[] = [],
+    async processActions<Type extends "chat" | "assistant">(
+      data: (Type extends "chat"
+        ? OpenAI.Chat.ChatCompletionMessageToolCall
+        : OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall)[] = [],
+      type: Type = "assistant" as Type,
     ) {
+      type OutputType = Type extends 'chat' ? OpenAI.Chat.Completions.ChatCompletionToolMessageParam : OpenAI.Beta.Threads.Runs.RunSubmitToolOutputsParams.ToolOutput;
       const results = await Promise.all(
         data.map(async ({ function: { arguments: args, name }, id }, i) => {
           const tool = tools[name as keyof T];
 
           const input = await tool._data.schema.parseAsync(JSON.parse(args));
           const response = await tool._data.func(input);
+
+          if (type === "chat") {
+            return {
+              tool_call_id: id,
+              role: "tool",
+              content: JSON.stringify(response),
+            } satisfies OpenAI.Chat.Completions.ChatCompletionToolMessageParam;
+          }
 
           return {
             tool_call_id: id,
@@ -128,7 +139,7 @@ export function createTools<T>(tools: { [K in keyof T]: InternalTool }) {
         }),
       );
 
-      return results;
+      return results as OutputType[];
     },
   };
 }
@@ -150,25 +161,26 @@ export function createTools<T>(tools: { [K in keyof T]: InternalTool }) {
  * );
  * ```
  */
-export function combineTools(
-  ...tools: (ReturnType<typeof createTools> | OpenAIBuiltInTool)[]
+export function combineTools<Type extends 'chat' | 'assistant', BuiltInTool extends OpenAIBuiltInTool = Type extends 'assistant' ? OpenAIBuiltInTool : never>(
+  ...tools: (ReturnType<typeof createTools> | BuiltInTool)[]
 ) {
   const customTools = tools.filter(
-    (t): t is Exclude<typeof t, OpenAIBuiltInTool> => "tools" in t,
+    (t): t is Exclude<typeof t, BuiltInTool> => "tools" in t,
   );
   const combinedCustomTools = {
     tools: customTools.flatMap(t => t.tools),
     async processActions(
-      data: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall[] = [],
+      data: Parameters<ReturnType<typeof createTools>["processActions"]>[0],
+      type: Type = "assistant" as Type,
     ) {
       const results = await Promise.all(
-        customTools.map(t => t.processActions(data)),
+        customTools.map(t => t.processActions<Type>(data, type)),
       );
 
       return results.flat();
     },
   };
-  const builtInTools = tools.filter((t): t is OpenAIBuiltInTool => "type" in t);
+  const builtInTools = tools.filter((t): t is BuiltInTool => "type" in t);
 
   return {
     tools: [...combinedCustomTools.tools, ...builtInTools],

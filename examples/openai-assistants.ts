@@ -1,5 +1,5 @@
 /* 
-This is a more complex example that uses the OpenAI API to create a chatbot.
+This is a more complex example that uses the OpenAI Assistants API (Beta) to create a chatbot.
 It also enables the code_interpreter tool provided by OpenAI.
 */
 
