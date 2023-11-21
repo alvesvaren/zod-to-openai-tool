@@ -81,6 +81,10 @@ export function tool<T = void>(): Tool<T> {
 /**
  *
  * @param tools An object containing tools created with `tool()`. Name them using the key.
+ * @param onError A function that will be called when a tool throws an error. The error will be passed as the first argument. 
+ *  If this function returns a value, that value will be used as the output of the tool. 
+ *  If you do not provide a function, the error will be stringified and sent to the assistant.
+ *  If the function returns `undefined` or `null`, the error will be sent to the assistant.
  * @returns An object containing the tools and a function to process actions.
  * @example
  * ```ts
@@ -97,7 +101,7 @@ export function tool<T = void>(): Tool<T> {
  * ```
  */
 
-export function createTools<T>(tools: { [K in keyof T]: InternalTool }) {
+export function createTools<T>(tools: { [K in keyof T]: InternalTool }, onError?: (error: any) => any) {
   type _Tool = (typeof tools)[keyof T];
   return {
     tools: Object.entries<_Tool>(tools).map(
@@ -120,9 +124,14 @@ export function createTools<T>(tools: { [K in keyof T]: InternalTool }) {
       const results = await Promise.all(
         data.map(async ({ function: { arguments: args, name }, id }, i) => {
           const tool = tools[name as keyof T];
-
-          const input = await tool._data.schema.parseAsync(JSON.parse(args));
-          const response = await tool._data.func(input);
+          let response;
+          try {
+            const input = await tool._data.schema.parseAsync(JSON.parse(args));
+            response = await tool._data.func(input);
+          } catch (error) {
+            error = onError?.(error) ?? error;
+            response = { error } 
+          }
 
           if (type === "chat") {
             return {
