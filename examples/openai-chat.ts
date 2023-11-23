@@ -12,7 +12,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const { tools, processActions } = createTools({
+const { tools, processChatActions } = createTools({
   getRandomNumber: tool().run(() => Math.floor(Math.random() * 100)),
 });
 
@@ -31,7 +31,7 @@ for await (const content of createInterface({ input: process.stdin })) {
   const message = completion.choices[0].message;
   messages.push(message);
   if (message.tool_calls) {
-    const tool_outputs = await processActions(message.tool_calls, "chat");
+    const tool_outputs = await processChatActions(message.tool_calls);
     messages.push(...tool_outputs);
     const completion2 = await openai.chat.completions.create({
       model: "gpt-3.5-turbo-1106",

@@ -4,7 +4,7 @@ import { inspect } from "util";
 
 const fullPrint = (msg: any) => console.log(inspect(msg, false, null, true));
 
-const { tools, processActions } = createTools({
+const { tools, processAssistantActions } = createTools({
   getWeather: tool()
     .input(
       z.object({
@@ -31,7 +31,7 @@ fullPrint(tools);
 
 console.log("--------");
 
-const resp = await processActions([
+const resp = await processAssistantActions([
   {
     function: {
       arguments: JSON.stringify({ city: "San Francisco", date: "2021-01-01" }),
