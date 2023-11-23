@@ -11,7 +11,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const { tools, processActions } = combineTools(
+const { tools, processAssistantActions } = combineTools(
   createTools({
     getRandomNumber: tool().run(() => Math.floor(Math.random() * 100)),
   }),
@@ -34,7 +34,9 @@ if (process.env.OPENAI_ASSISTANT_ID) {
 } else {
   assistant = await openai.beta.assistants.create(assistantData);
   console.log("Created a new assistant with id:", assistant.id);
-  console.log(`Set the environment variable OPENAI_ASSISTANT_ID=${assistant.id} to reuse it.`);
+  console.log(
+    `Set the environment variable OPENAI_ASSISTANT_ID=${assistant.id} to reuse it.`,
+  );
 }
 
 async function processThread(run: OpenAI.Beta.Threads.Runs.Run) {
@@ -47,7 +49,7 @@ async function processThread(run: OpenAI.Beta.Threads.Runs.Run) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       break;
     case "requires_action":
-      const tool_outputs = await processActions(
+      const tool_outputs = await processAssistantActions(
         run.required_action?.submit_tool_outputs.tool_calls,
       );
       await openai.beta.threads.runs.submitToolOutputs(run.thread_id, run.id, {

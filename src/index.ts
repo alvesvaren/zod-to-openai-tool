@@ -81,8 +81,8 @@ export function tool<T = void>(): Tool<T> {
 /**
  *
  * @param tools An object containing tools created with `tool()`. Name them using the key.
- * @param onError A function that will be called when a tool throws an error. The error will be passed as the first argument. 
- *  If this function returns a value, that value will be used as the output of the tool. 
+ * @param onError A function that will be called when a tool throws an error. The error will be passed as the first argument.
+ *  If this function returns a value, that value will be used as the output of the tool.
  *  If you do not provide a function, the error will be stringified and sent to the assistant.
  *  If the function returns `undefined` or `null`, the error will be sent to the assistant.
  * @returns An object containing the tools and a function to process actions.
@@ -101,8 +101,33 @@ export function tool<T = void>(): Tool<T> {
  * ```
  */
 
-export function createTools<T>(tools: { [K in keyof T]: InternalTool }, onError?: (error: any) => any) {
+export function createTools<T>(
+  tools: { [K in keyof T]: InternalTool },
+  onError?: (error: any) => any,
+) {
   type _Tool = (typeof tools)[keyof T];
+
+  function _processActions(
+    data: (OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall &
+      OpenAI.Chat.ChatCompletionMessageToolCall)[],
+  ) {
+    const results = Promise.all(
+      data.map(async ({ function: { arguments: args, name }, id }, i) => {
+        const tool = tools[name as keyof T];
+        let output;
+        try {
+          const input = await tool._data.schema.parseAsync(JSON.parse(args));
+          output = await tool._data.func(input);
+        } catch (error) {
+          error = onError?.(error) ?? error;
+          output = { error };
+        }
+        return { id, output: JSON.stringify(output) };
+      }),
+    );
+    return results;
+  }
+
   return {
     tools: Object.entries<_Tool>(tools).map(
       ([name, tool]): OpenAI.Beta.AssistantCreateParams.AssistantToolsFunction &
@@ -114,41 +139,28 @@ export function createTools<T>(tools: { [K in keyof T]: InternalTool }, onError?
         };
       },
     ),
-    async processActions<Type extends "chat" | "assistant">(
-      data: (Type extends "chat"
-        ? OpenAI.Chat.ChatCompletionMessageToolCall
-        : OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall)[] = [],
-      type: Type = "assistant" as Type,
+    async processChatActions(
+      data: OpenAI.Chat.ChatCompletionMessageToolCall[] = [],
     ) {
-      type OutputType = Type extends 'chat' ? OpenAI.Chat.Completions.ChatCompletionToolMessageParam : OpenAI.Beta.Threads.Runs.RunSubmitToolOutputsParams.ToolOutput;
-      const results = await Promise.all(
-        data.map(async ({ function: { arguments: args, name }, id }, i) => {
-          const tool = tools[name as keyof T];
-          let response;
-          try {
-            const input = await tool._data.schema.parseAsync(JSON.parse(args));
-            response = await tool._data.func(input);
-          } catch (error) {
-            error = onError?.(error) ?? error;
-            response = { error } 
-          }
-
-          if (type === "chat") {
-            return {
-              tool_call_id: id,
-              role: "tool",
-              content: JSON.stringify(response),
-            } satisfies OpenAI.Chat.Completions.ChatCompletionToolMessageParam;
-          }
-
-          return {
+      return (await _processActions(data)).map(
+        ({ id, output }) =>
+          ({
             tool_call_id: id,
-            output: JSON.stringify(response),
-          } satisfies OpenAI.Beta.Threads.Runs.RunSubmitToolOutputsParams.ToolOutput;
-        }),
+            role: "tool",
+            content: output,
+          }) as OpenAI.Chat.Completions.ChatCompletionToolMessageParam,
       );
-
-      return results as OutputType[];
+    },
+    async processAssistantActions(
+      data: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall[] = [],
+    ) {
+      return (await _processActions(data)).map(
+        ({ id, output }) =>
+          ({
+            tool_call_id: id,
+            output,
+          }) as OpenAI.Beta.Threads.Runs.RunSubmitToolOutputsParams.ToolOutput,
+      );
     },
   };
 }
@@ -170,29 +182,33 @@ export function createTools<T>(tools: { [K in keyof T]: InternalTool }, onError?
  * );
  * ```
  */
-export function combineTools<Type extends 'chat' | 'assistant', BuiltInTool extends OpenAIBuiltInTool = Type extends 'assistant' ? OpenAIBuiltInTool : never>(
-  ...tools: (ReturnType<typeof createTools> | BuiltInTool)[]
-) {
+export function combineTools(...tools: (ReturnType<typeof createTools> | OpenAIBuiltInTool)[]) {
   const customTools = tools.filter(
-    (t): t is Exclude<typeof t, BuiltInTool> => "tools" in t,
+    (t): t is Exclude<typeof t, OpenAIBuiltInTool> => "tools" in t,
   );
+
   const combinedCustomTools = {
     tools: customTools.flatMap(t => t.tools),
-    async processActions(
-      data: Parameters<ReturnType<typeof createTools>["processActions"]>[0],
-      type: Type = "assistant" as Type,
+    async processChatActions(
+      data: OpenAI.Chat.ChatCompletionMessageToolCall[] = [],
     ) {
-      const results = await Promise.all(
-        customTools.map(t => t.processActions<Type>(data, type)),
-      );
-
-      return results.flat();
+      return (
+        await Promise.all(customTools.map(t => t.processChatActions(data)))
+      ).flat();
+    },
+    async processAssistantActions(
+      data: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall[] = [],
+    ) {
+      return (
+        await Promise.all(customTools.map(t => t.processAssistantActions(data)))
+      ).flat();
     },
   };
-  const builtInTools = tools.filter((t): t is BuiltInTool => "type" in t);
+  const builtInTools = tools.filter((t): t is OpenAIBuiltInTool => "type" in t);
 
   return {
     tools: [...combinedCustomTools.tools, ...builtInTools],
-    processActions: combinedCustomTools.processActions,
+    processChatActions: combinedCustomTools.processChatActions,
+    processAssistantActions: combinedCustomTools.processAssistantActions,
   };
 }
