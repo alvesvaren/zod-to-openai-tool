@@ -109,7 +109,8 @@ describe("combineTools()", () => {
   it("should return an empty array if no tools are passed", () => {
     const tools = combineTools();
     expect(tools).toEqual({
-      processActions: expect.any(Function),
+      processChatActions: expect.any(Function),
+      processAssistantActions: expect.any(Function),
       tools: [],
     });
   });
@@ -127,7 +128,8 @@ describe("combineTools()", () => {
       }),
     );
     expect(tools).toEqual({
-      processActions: expect.any(Function),
+      processChatActions: expect.any(Function),
+      processAssistantActions: expect.any(Function),
       tools: [
         {
           type: "function",
@@ -160,7 +162,8 @@ describe("combineTools()", () => {
       { type: "retrieval" },
     );
     expect(combinedTools).toEqual({
-      processActions: expect.any(Function),
+      processChatActions: expect.any(Function),
+      processAssistantActions: expect.any(Function),
       tools: [
         {
           type: "code_interpreter",
