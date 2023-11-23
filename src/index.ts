@@ -88,7 +88,7 @@ export function tool<T = void>(): Tool<T> {
  * @returns An object containing the tools and a function to process actions.
  * @example
  * ```ts
- * const { tools, processActions } = createTools({
+ * const { tools, processAssistantActions, processChatActions } = createTools({
  *   getWeather,  // These are created with `tool()`
  *   exponential,
  * });
@@ -103,7 +103,7 @@ export function tool<T = void>(): Tool<T> {
 
 export function createTools<T>(
   tools: { [K in keyof T]: InternalTool },
-  onError?: (error: any) => any,
+  onError?: (error: unknown) => any,
 ) {
   type _Tool = (typeof tools)[keyof T];
 
@@ -172,7 +172,7 @@ export function createTools<T>(
  * @see https://platform.openai.com/docs/assistants/tools - for more information on the OpenAI API tools.
  * @example
  * ```ts
- * const tools = combineTools(
+ * const { tools, processAssistantActions } = combineTools(
  *   createTools({
  *     getWeather,
  *     exponential,

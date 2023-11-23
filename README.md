@@ -7,7 +7,7 @@ Easily create tools from zod schemas to use with OpenAI Assistants and Chat Comp
 ```ts
 import { tool, createTools } from "zod-to-openai-tool";
 
-const { tools, processActions } = createTools({
+const { tools, processAssistantActions } = createTools({
   getWeather: tool()
     .input(z.object({ city: z.string() }))
     .describe("Get the weather in a city")
@@ -21,7 +21,7 @@ const assistant = await openai.beta.assistants.create({
 
 // Then, when the assistant uses the tools and responds with `requires_action`:
 const actions = run.required_action.submit_tool_outputs.tool_calls;
-const tool_outputs = processActions(actions);
+const tool_outputs = processAssistantActions(actions);
 await openai.beta.threads.runs.submitToolOutputs(thread.id, run.id, {
   tool_outputs,
 });
