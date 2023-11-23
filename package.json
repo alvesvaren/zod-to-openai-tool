@@ -7,7 +7,8 @@
   "scripts": {
     "test": "vitest",
     "dev": "tsx watch examples/basic-usage.ts",
-    "build": "tsc && tsc -p tsconfig-cjs.json"
+    "build": "tsc && tsc -p tsconfig-cjs.json",
+    "prepublish": "pnpm run build"
   },
   "files": [
     "dist",
@@ -33,7 +34,6 @@
   "author": "Alve Svarén",
   "license": "ISC",
   "devDependencies": {
-    "@changesets/cli": "^2.26.2",
     "@types/node": "^20.9.1",
     "openai": "^4.19.0",
     "prettier": "^3.1.0",
