@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.8.1
+
+### Patch Changes
+
+- a5eea5e: Update documentation to match v0.8.0 changes
+
 ## 0.8.0
 
 ### Minor Changes
