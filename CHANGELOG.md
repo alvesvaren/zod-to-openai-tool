@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.11.1
+
+### Patch Changes
+
+- f5629b1: Fix typo in readme
+
 ## 0.11.0
 
 ### Minor Changes
