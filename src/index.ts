@@ -97,7 +97,18 @@ function tool<T = void>(): Tool<T> {
  *   }));
  * ```
  */
-export const t: Steps<void> = {
+export const t: Steps<void> & {
+  /**
+   * Alias to the `code_interpreter` tool
+   * @see https://platform.openai.com/docs/assistants/tools/code-interpreter
+   */
+  retrieval: OpenAI.Beta.Assistant.Retrieval;
+  /**
+   * Alias to the `retrieval` tool
+   * @see https://platform.openai.com/docs/assistants/tools/knowledge-retrieval
+   */
+  codeInterpreter: OpenAI.Beta.Assistant.CodeInterpreter;
+} = {
   input<S extends z.AnyZodObject>(s: S) {
     return tool().input<S>(s);
   },
@@ -107,6 +118,8 @@ export const t: Steps<void> = {
   describe(d: string) {
     return tool().describe(d);
   },
+  codeInterpreter: { type: "code_interpreter" },
+  retrieval: { type: "retrieval" },
 };
 
 /**
@@ -172,6 +185,11 @@ export function createTools<T>(
         };
       },
     ),
+    /**
+     * Process the actions from the chat completion.
+     * @param data The tool calls generated from the chat completion. (`message.tool_calls`)
+     * @returns The message which should be sent with the messages to generate the result based on the tool calls
+     */
     async processChatActions(
       data: OpenAI.Chat.ChatCompletionMessageToolCall[] = [],
     ) {
@@ -184,6 +202,11 @@ export function createTools<T>(
           }) as OpenAI.Chat.Completions.ChatCompletionToolMessageParam,
       );
     },
+    /**
+     * Process the actions from the assistant run.
+     * @param data The tool calls generated from the assistant run. (`run.required_action.submit_tool_outputs.tool_calls`)
+     * @returns The tool outputs which should be sent to `runs.submitToolOutputs()` to continue the run.
+     */
     async processAssistantActions(
       data: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall[] = [],
     ) {
@@ -197,6 +220,9 @@ export function createTools<T>(
     },
   };
 }
+
+type CreateToolsOutput = ReturnType<typeof createTools>;
+type AnyTool = ReturnType<typeof createTools> | OpenAIBuiltInTool;
 
 /**
  * Combine multiple tools into one object that can be used with an assistant.
@@ -215,9 +241,12 @@ export function createTools<T>(
  * );
  * ```
  */
-export function combineTools(
-  ...tools: (ReturnType<typeof createTools> | OpenAIBuiltInTool)[]
-) {
+export function combineTools(...tools: AnyTool[]): Omit<
+  CreateToolsOutput,
+  "tools"
+> & {
+  tools: OpenAIBuiltInTool[];
+} {
   const customTools = tools.filter(
     (t): t is Exclude<typeof t, OpenAIBuiltInTool> => "tools" in t,
   );
