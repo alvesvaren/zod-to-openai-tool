@@ -32,6 +32,8 @@ interface Steps<T = void, Omitted extends string = never> {
   ): Omit<Steps<T, Omitted | "describe">, Omitted | "describe"> & InternalTool;
 }
 
+type CheckHasSetRun<T> = T extends { run: any } ? never : T;
+
 interface Data {
   func: (input: any) => unknown;
   schema: z.AnyZodObject;
@@ -130,7 +132,7 @@ export const t: Steps<void> = {
  * ```
  */
 export function createTools<T>(
-  tools: { [K in keyof T]: InternalTool },
+  tools: { [K in keyof T]: InternalTool & CheckHasSetRun<T[K]> },
   onError?: (error: unknown) => any,
 ) {
   type _Tool = (typeof tools)[keyof T];

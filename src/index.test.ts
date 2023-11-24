@@ -102,6 +102,7 @@ describe("createTools() - types", () => {
     createTools({
       // @ts-expect-error
       test: t.input(z.object({ name: z.string() })),
+      testWithRun: t.input(z.object({ name: z.string() })).run(() => {}),
     });
   })
 });
