@@ -5,7 +5,7 @@
   "repository": "https://github.com/alvesvaren/zod-to-openai-tool",
   "type": "module",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest ; tsc",
     "dev": "tsx watch examples/basic-usage.ts",
     "build": "tsup",
     "release": "pnpm run build",

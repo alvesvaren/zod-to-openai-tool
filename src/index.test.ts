@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import { ZodError, z } from "zod";
 import { combineTools, createTools, t } from "./index.js";
 
-describe("tool()", () => {
+describe("t", () => {
   it("should return a valid empty json schema", () => {
     const emptySchema = t.run(() => {})._parameters;
     expect(emptySchema).toEqual({
@@ -47,7 +47,7 @@ describe("tool()", () => {
   });
 });
 
-describe("tool() - types", () => {
+describe("t - types", () => {
   it("should only allow one input", () => {
     const toolWithInput = t.input(z.object({ name: z.string() }));
     expectTypeOf(toolWithInput).not.toMatchTypeOf<{ input: any }>();
@@ -95,6 +95,15 @@ describe("createTools()", () => {
       },
     ]);
   });
+});
+
+describe("createTools() - types", () => {
+  it("should only allow tools to be created when a run function has been added", () => {
+    createTools({
+      // @ts-expect-error
+      test: t.input(z.object({ name: z.string() })),
+    });
+  })
 });
 
 describe("combineTools()", () => {
