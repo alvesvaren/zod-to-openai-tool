@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.9.0
+
+### Minor Changes
+
+- 72c361d: Replace build tool with tsup
+
 ## 0.8.1
 
 ### Patch Changes
