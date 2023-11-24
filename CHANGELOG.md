@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.11.0
+
+### Minor Changes
+
+- 4a981ba: Add aliases for code interpreter and retrieval tools
+
 ## 0.10.0
 
 ### Minor Changes
