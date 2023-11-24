@@ -1,5 +1,12 @@
 # zod-to-openai-tool
 
+## 0.10.0
+
+### Minor Changes
+
+- 5f2fffb: Fix missing type check for run function in createTools
+- 09f53bb: Replace `tool()` with `t`
+
 ## 0.9.0
 
 ### Minor Changes
