@@ -3,8 +3,8 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 import type { OpenAI } from "openai";
 import { deepRemoveKey } from "./utils.js";
 interface Steps<T = void, Omitted extends string = never> {
-  input<S extends z.ZodType<any, any>>(
-    schema: S extends z.AnyZodObject ? S : never,
+  input<S extends z.AnyZodObject>(
+    schema: S,
   ): Omit<Steps<z.infer<S>, Omitted | "input">, "input" | Omitted> &
     InternalTool;
   run(
@@ -17,7 +17,7 @@ interface Steps<T = void, Omitted extends string = never> {
 
 interface Data {
   func: (input: any) => unknown;
-  schema: z.ZodType<any, any>;
+  schema: z.AnyZodObject;
   description: string | undefined;
 }
 
@@ -28,7 +28,8 @@ interface InternalTool {
 
 type OpenAIBuiltInTool = OpenAI.Beta.Assistant["tools"][number];
 
-export type Tool<T = void> = Steps<T> & InternalTool;
+export type Tool<T = void, O extends string = never> = Steps<T, O> &
+  InternalTool;
 
 /**
  * Creates a tool for use with openai assistants
@@ -46,7 +47,7 @@ export type Tool<T = void> = Steps<T> & InternalTool;
  * ```
  * @returns A `Tool` that can be used with `createTools()`.
  */
-export function tool<T = void>(): Tool<T> {
+function tool<T = void>(): Tool<T> {
   const data: Data = {
     schema: z.object({}),
     func: () => {},
@@ -54,9 +55,9 @@ export function tool<T = void>(): Tool<T> {
   };
 
   return {
-    input(s) {
+    input<S extends z.AnyZodObject>(s: S) {
       data.schema = s;
-      return this;
+      return this as Tool<z.infer<S>, "input">;
     },
     run(f) {
       data.func = f;
@@ -77,6 +78,18 @@ export function tool<T = void>(): Tool<T> {
     },
   };
 }
+
+export const t = {
+  input<S extends z.AnyZodObject>(s: S) {
+    return tool().input<S>(s);
+  },
+  run(...args: Parameters<Tool["run"]>) {
+    return tool().run(...args);
+  },
+  describe(d: string) {
+    return tool().describe(d);
+  },
+};
 
 /**
  *
@@ -120,6 +133,9 @@ export function createTools<T>(
           output = await tool._data.func(input);
         } catch (error) {
           error = onError?.(error) ?? error;
+          if (error instanceof Error) {
+            error = error.message;
+          }
           output = { error };
         }
         return { id, output: JSON.stringify(output) };
@@ -182,7 +198,9 @@ export function createTools<T>(
  * );
  * ```
  */
-export function combineTools(...tools: (ReturnType<typeof createTools> | OpenAIBuiltInTool)[]) {
+export function combineTools(
+  ...tools: (ReturnType<typeof createTools> | OpenAIBuiltInTool)[]
+) {
   const customTools = tools.filter(
     (t): t is Exclude<typeof t, OpenAIBuiltInTool> => "tools" in t,
   );

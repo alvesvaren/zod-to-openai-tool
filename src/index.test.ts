@@ -1,20 +1,17 @@
-import { it } from "vitest";
-import { describe } from "vitest";
-import { expect } from "vitest";
-import { tool, createTools, combineTools } from "./index";
-import { z } from "zod";
-import { expectTypeOf } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
+import { ZodError, z } from "zod";
+import { combineTools, createTools, t } from "./index.js";
 
 describe("tool()", () => {
   it("should return a valid empty json schema", () => {
-    const emptySchema = tool()._parameters;
+    const emptySchema = t.run(() => {})._parameters;
     expect(emptySchema).toEqual({
       type: "object",
       properties: {},
     });
   });
   it("should return a valid schema for a complex input", () => {
-    const complexSchema = tool().input(
+    const complexSchema = t.input(
       z.object({
         name: z.coerce.date().default(() => new Date()),
         address: z.object({
@@ -52,26 +49,23 @@ describe("tool()", () => {
 
 describe("tool() - types", () => {
   it("should only allow one input", () => {
-    const toolWithInput = tool().input(z.object({ name: z.string() }));
-
+    const toolWithInput = t.input(z.object({ name: z.string() }));
     expectTypeOf(toolWithInput).not.toMatchTypeOf<{ input: any }>();
   });
   it("should only allow one run", () => {
-    const toolWithRun = tool().run(() => {});
-
+    const toolWithRun = t.run(() => {});
     expectTypeOf(toolWithRun).not.toMatchTypeOf<{ run: any }>();
   });
   it("should only allow one description", () => {
-    const toolWithDescribe = tool().describe("hello");
-
+    const toolWithDescribe = t.describe("hello");
     expectTypeOf(toolWithDescribe).not.toMatchTypeOf<{ describe: any }>();
   });
   it("should only allow input to be defined before run", () => {
-    const toolWithRun = tool().run(() => {});
+    const toolWithRun = t.run(() => {});
 
-    const toolWithInputAndRun = tool()
+    const toolWithInputAndRun = t
       .input(z.object({ name: z.string() }))
-      .run(() => {});
+      .run(({ name }) => ({ name }));
 
     expectTypeOf(toolWithRun).not.toMatchTypeOf<{ input: any }>();
     expectTypeOf(toolWithInputAndRun).not.toMatchTypeOf<{ input: any }>();
@@ -85,9 +79,7 @@ describe("createTools()", () => {
   });
   it("should return an array of tools if tools are passed", () => {
     const { tools } = createTools({
-      test: tool()
-        .run(() => {})
-        .describe("hello"),
+      test: t.run(() => {}).describe("hello"),
     });
     expect(tools).toEqual([
       {
@@ -117,14 +109,10 @@ describe("combineTools()", () => {
   it("should combine tools if tools are passed", () => {
     const tools = combineTools(
       createTools({
-        tool: tool()
-          .run(() => {})
-          .describe("hello"),
+        tool: t.run(() => {}).describe("hello"),
       }),
       createTools({
-        anotherTool: tool()
-          .run(() => {})
-          .describe("world"),
+        anotherTool: t.run(() => {}).describe("world"),
       }),
     );
     expect(tools).toEqual({
@@ -176,4 +164,177 @@ describe("combineTools()", () => {
   });
 });
 
-// TODO: Add tests for processActions
+describe("processChatActions()", () => {
+  it("should return an empty array if no tools are passed", async () => {
+    const { processChatActions } = combineTools();
+    const results = await processChatActions();
+    expect(results).toEqual([]);
+  });
+  it("should return a valid chat tool message for a simple tool", async () => {
+    const { processChatActions } = createTools({
+      example: t
+        .input(z.object({ text: z.string() }))
+        .run(({ text }) => `Hello ${text}`),
+    });
+    const response = await processChatActions([
+      {
+        id: "test",
+        function: {
+          arguments: '{"text": "world"}',
+          name: "example",
+        },
+        type: "function",
+      },
+    ]);
+    expect(response).toEqual([
+      {
+        // Because it's stringified, it's a nested string
+        content: '"Hello world"',
+        role: "tool",
+        tool_call_id: "test",
+      },
+    ]);
+  });
+  it("should work for an async tool", async () => {
+    const { processChatActions } = createTools({
+      example: t
+        .input(z.object({ text: z.string() }))
+        .run(({ text }) => Promise.resolve(`Hello ${text}`)),
+    });
+    const response = await processChatActions([
+      {
+        id: "test",
+        function: {
+          arguments: '{"text": "world"}',
+          name: "example",
+        },
+        type: "function",
+      },
+    ]);
+    expect(response).toEqual([
+      {
+        // Because it's stringified, it's a nested string
+        content: '"Hello world"',
+        role: "tool",
+        tool_call_id: "test",
+      },
+    ]);
+  });
+  it("should pass the error back if the tool fails", async () => {
+    const { processChatActions } = createTools({
+      example: t.input(z.object({ text: z.string() })).run(({ text }) => {
+        throw new Error(`Hello ${text}`);
+      }),
+    });
+    const response = await processChatActions([
+      {
+        id: "test",
+        function: {
+          arguments: '{"text": "world"}',
+          name: "example",
+        },
+        type: "function",
+      },
+    ]);
+    expect(response).toEqual([
+      {
+        content: '{"error":"Hello world"}',
+        role: "tool",
+        tool_call_id: "test",
+      },
+    ]);
+  });
+  it("should pass the error to the onError handler if one is passed", async () => {
+    const { processChatActions } = createTools(
+      {
+        example: t.input(z.object({ text: z.string() })).run(({ text }) => {
+          throw new Error(`Hello ${text}`);
+        }),
+      },
+      error => {
+        expect(error).toBeInstanceOf(Error);
+        if (!(error instanceof Error)) throw new Error("Expected error");
+        return { moreData: `Hello ${error.message}` };
+      },
+    );
+    const response = await processChatActions([
+      {
+        id: "test",
+        function: {
+          arguments: '{"text": "world"}',
+          name: "example",
+        },
+        type: "function",
+      },
+    ]);
+    expect(response).toEqual([
+      {
+        content: '{"error":{"moreData":"Hello Hello world"}}',
+        role: "tool",
+        tool_call_id: "test",
+      },
+    ]);
+  });
+  it("should pass zod validation errors to the onError handler if one is passed", async () => {
+    const { processChatActions } = createTools(
+      {
+        example: t.input(z.object({ text: z.string() })).run(({ text }) => {
+          throw new Error(`Hello ${text}`);
+        }),
+      },
+      error => {
+        expect(error).toBeInstanceOf(ZodError);
+        return undefined;
+      },
+    );
+    const response = await processChatActions([
+      {
+        id: "test",
+        function: {
+          arguments: '{"text": 123}',
+          name: "example",
+        },
+        type: "function",
+      },
+    ]);
+    expect(response).toEqual([
+      {
+        content: expect.stringContaining("Expected string, received number"),
+        role: "tool",
+        tool_call_id: "test",
+      },
+    ]);
+  });
+});
+
+// Mostly uses the same code as processChatActions, so we don't need to test everything again
+describe("processAssistantActions()", () => {
+  it("should return an empty array if no tools are passed", async () => {
+    const { processAssistantActions } = combineTools();
+    const results = await processAssistantActions();
+    expect(results).toEqual([]);
+  });
+  it("should return a valid assistant tool message for a simple tool", async () => {
+    const { processAssistantActions } = createTools({
+      example: t
+        .input(z.object({ text: z.string() }))
+        .run(({ text }) => `Hello ${text}`),
+    });
+    const response = await processAssistantActions([
+      {
+        id: "test",
+        function: {
+          arguments: '{"text": "world"}',
+          name: "example",
+        },
+        type: "function",
+      },
+    ]);
+    expect(response).toEqual([
+      {
+        output: '"Hello world"',
+        tool_call_id: "test",
+      },
+    ]);
+  });
+});
