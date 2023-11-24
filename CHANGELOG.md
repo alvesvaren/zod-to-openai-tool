@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.11.2
+
+### Patch Changes
+
+- d714e42: Show better example in readme
+
 ## 0.11.1
 
 ### Patch Changes
