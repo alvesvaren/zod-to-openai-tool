@@ -1,23 +1,42 @@
+import type { OpenAI } from "openai";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import type { OpenAI } from "openai";
 import { deepRemoveKey } from "./utils.js";
 interface Steps<T = void, Omitted extends string = never> {
-  input<S extends z.ZodType<any, any>>(
-    schema: S extends z.AnyZodObject ? S : never,
+  /**
+   * Adds a schema for the tool. This will be used to validate the input and to infer the type of the input in the `run()` function.
+   * @param s The schema for the input. Must be a `z.object({})`
+   * @returns A tool with the input schema set.
+   */
+  input<S extends z.AnyZodObject>(
+    schema: S,
   ): Omit<Steps<z.infer<S>, Omitted | "input">, "input" | Omitted> &
     InternalTool;
+  /**
+   * The function to run when the model calls the tool. This is the only required builder step.
+   * @param args The arguments for the `run()` function.
+   *   The type of the arguments will be inferred from the input schema. If there is no input schema, the type will be `void`.
+   * @returns A tool with the `run()` function set.
+   */
   run(
     func: (input: T extends void ? never : T) => unknown,
   ): Omit<Steps<T, Omitted | "run">, "run" | "input" | Omitted> & InternalTool;
+  /**
+   * Adds a description to the tool. This will be provided to the model to aid in understanding the tool.
+   * @param d The description of the tool as a string.
+   *   It is good to explain what data the tool returns and what it does here.
+   * @returns A tool with the description set.
+   */
   describe(
     description: string,
   ): Omit<Steps<T, Omitted | "describe">, Omitted | "describe"> & InternalTool;
 }
 
+type CheckHasSetRun<T> = T extends { run: any } ? never : T;
+
 interface Data {
   func: (input: any) => unknown;
-  schema: z.ZodType<any, any>;
+  schema: z.AnyZodObject;
   description: string | undefined;
 }
 
@@ -28,25 +47,10 @@ interface InternalTool {
 
 type OpenAIBuiltInTool = OpenAI.Beta.Assistant["tools"][number];
 
-export type Tool<T = void> = Steps<T> & InternalTool;
+export type Tool<T = void, O extends string = never> = Steps<T, O> &
+  InternalTool;
 
-/**
- * Creates a tool for use with openai assistants
- * @example
- * ```ts
- * const getWeather = tool()
- *   .input(
- *     z.object({
- *       city: z.string(),
- *      }))
- *   .describe("Gets the weather")
- *   .run(async ({ city }) => ({
- *     weather: "sunny",
- *   }));
- * ```
- * @returns A `Tool` that can be used with `createTools()`.
- */
-export function tool<T = void>(): Tool<T> {
+function tool<T = void>(): Tool<T> {
   const data: Data = {
     schema: z.object({}),
     func: () => {},
@@ -54,9 +58,9 @@ export function tool<T = void>(): Tool<T> {
   };
 
   return {
-    input(s) {
+    input<S extends z.AnyZodObject>(s: S) {
       data.schema = s;
-      return this;
+      return this as Tool<z.infer<S>, "input">;
     },
     run(f) {
       data.func = f;
@@ -79,8 +83,35 @@ export function tool<T = void>(): Tool<T> {
 }
 
 /**
+ * Creates a tool for use with openai assistants
+ * @example
+ * ```ts
+ * const getWeather = t
+ *   .input(
+ *     z.object({
+ *       city: z.string(),
+ *      }))
+ *   .describe("Gets the weather")
+ *   .run(async ({ city }) => ({
+ *     weather: "sunny",
+ *   }));
+ * ```
+ */
+export const t: Steps<void> = {
+  input<S extends z.AnyZodObject>(s: S) {
+    return tool().input<S>(s);
+  },
+  run(...args: Parameters<Tool["run"]>) {
+    return tool().run(...args);
+  },
+  describe(d: string) {
+    return tool().describe(d);
+  },
+};
+
+/**
  *
- * @param tools An object containing tools created with `tool()`. Name them using the key.
+ * @param tools An object containing tools created with `t.run()`. Name them using the key.
  * @param onError A function that will be called when a tool throws an error. The error will be passed as the first argument.
  *  If this function returns a value, that value will be used as the output of the tool.
  *  If you do not provide a function, the error will be stringified and sent to the assistant.
@@ -88,8 +119,8 @@ export function tool<T = void>(): Tool<T> {
  * @returns An object containing the tools and a function to process actions.
  * @example
  * ```ts
- * const { tools, processAssistantActions, processChatActions } = createTools({
- *   getWeather,  // These are created with `tool()`
+ * const { t, processAssistantActions, processChatActions } = createTools({
+ *   getWeather,  // These are created with `t.run()` and `t.input()`, see the example for `t`
  *   exponential,
  * });
  *
@@ -100,9 +131,8 @@ export function tool<T = void>(): Tool<T> {
  * });
  * ```
  */
-
 export function createTools<T>(
-  tools: { [K in keyof T]: InternalTool },
+  tools: { [K in keyof T]: InternalTool & CheckHasSetRun<T[K]> },
   onError?: (error: unknown) => any,
 ) {
   type _Tool = (typeof tools)[keyof T];
@@ -120,6 +150,9 @@ export function createTools<T>(
           output = await tool._data.func(input);
         } catch (error) {
           error = onError?.(error) ?? error;
+          if (error instanceof Error) {
+            error = error.message;
+          }
           output = { error };
         }
         return { id, output: JSON.stringify(output) };
@@ -182,7 +215,9 @@ export function createTools<T>(
  * );
  * ```
  */
-export function combineTools(...tools: (ReturnType<typeof createTools> | OpenAIBuiltInTool)[]) {
+export function combineTools(
+  ...tools: (ReturnType<typeof createTools> | OpenAIBuiltInTool)[]
+) {
   const customTools = tools.filter(
     (t): t is Exclude<typeof t, OpenAIBuiltInTool> => "tools" in t,
   );

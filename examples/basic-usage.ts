@@ -1,11 +1,11 @@
-import { z } from "zod";
-import { tool, createTools } from "../src";
 import { inspect } from "util";
+import { z } from "zod";
+import { createTools, t } from "../src";
 
 const fullPrint = (msg: any) => console.log(inspect(msg, false, null, true));
 
 const { tools, processAssistantActions } = createTools({
-  getWeather: tool()
+  getWeather: t
     .input(
       z.object({
         city: z.string(),
@@ -19,12 +19,12 @@ const { tools, processAssistantActions } = createTools({
       weather: "sunny",
     })),
 
-  exponential: tool()
+  exponential: t
     .input(z.object({ n: z.number() }))
     .describe("Exponentiates a number")
     .run(async ({ n }) => Math.exp(n)),
 
-  helloWorld: tool().run(() => "Hello, world!"),
+  helloWorld: t.run(() => "Hello, world!"),
 });
 
 fullPrint(tools);
