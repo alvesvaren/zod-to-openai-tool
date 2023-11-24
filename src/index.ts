@@ -109,7 +109,7 @@ export const t: Steps<void> = {
 
 /**
  *
- * @param tools An object containing tools created with `tool()`. Name them using the key.
+ * @param tools An object containing tools created with `t.run()`. Name them using the key.
  * @param onError A function that will be called when a tool throws an error. The error will be passed as the first argument.
  *  If this function returns a value, that value will be used as the output of the tool.
  *  If you do not provide a function, the error will be stringified and sent to the assistant.
@@ -129,7 +129,6 @@ export const t: Steps<void> = {
  * });
  * ```
  */
-
 export function createTools<T>(
   tools: { [K in keyof T]: InternalTool },
   onError?: (error: unknown) => any,

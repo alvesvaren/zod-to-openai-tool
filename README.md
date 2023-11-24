@@ -35,7 +35,7 @@ await openai.beta.threads.runs.submitToolOutputs(thread.id, run.id, {
 
 This package exports the following functions:
 
-- `tool()` - Used to create a new tool
+- `t` - Used to create a new tool
 - `createTools(tools)` - Used to convert tools to the openai format (and give them a name)
 - `combineTools(...tools)` - Used to combine multiple tools into one (including Code Interpreter and Retrieval)
 
@@ -45,10 +45,10 @@ This package exports the following functions:
 
 ## Tools
 
-A tool is created using the tool() function. They can then have the following properties added:
+A tool is created using the t object. They can then have the following properties added:
 
 - `input` - The input to the function (optional). This needs to be an object (`z.object({})`)
 - `describe` - A description of the function (optional)
-- `run` - The function to run using the input
+- `run` - The function to run using the input (required)
 
 You'll need to define the input first in order for it to be inferred all the way when using the function.
