@@ -7,8 +7,9 @@
   "scripts": {
     "test": "vitest",
     "dev": "tsx watch examples/basic-usage.ts",
-    "build": "tsc && tsc -p tsconfig-cjs.json",
-    "prepublish": "pnpm run build"
+    "build": "tsup",
+    "release": "pnpm run build && changeset publish",
+    "prepublish": "pnpm run release"
   },
   "files": [
     "dist",
@@ -16,19 +17,22 @@
   ],
   "exports": {
     ".": {
-      "require": "./dist/cjs/index.js",
-      "import": "./dist/mjs/index.js",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/mjs/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "keywords": [
     "zod",
     "openai",
     "openai-assistants",
+    "openai-chat",
+    "openai-tools",
     "openai-functions",
+    "json-schema",
     "typescript"
   ],
   "author": "Alve Svarén",
@@ -38,6 +42,7 @@
     "@types/node": "^20.9.1",
     "openai": "^4.19.0",
     "prettier": "^3.1.0",
+    "tsup": "^8.0.1",
     "tsx": "^4.1.2",
     "typescript": "^5.2.2",
     "vitest": "^0.34.6",
