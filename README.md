@@ -15,7 +15,10 @@ const { tools, processAssistantActions } = createTools({
   getWeather: t
     .input(z.object({ city: z.string() }))
     .describe("Get the weather in a city")
-    .run(({ city }) => `The weather in ${city} is sunny`),
+    .run(async ({ city }) => {
+      const weatherData = await getWeather(city);
+      return { weather: weatherData };
+    }),
 });
 
 const assistant = await openai.beta.assistants.create({
