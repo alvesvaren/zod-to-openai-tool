@@ -15,7 +15,7 @@ const { tools, processAssistantActions } = combineTools(
   createTools({
     getRandomNumber: t.run(() => Math.floor(Math.random() * 100)),
   }),
-  { type: "code_interpreter" },
+  t.codeInterpreter,
 );
 
 const assistantData: OpenAI.Beta.AssistantUpdateParams &
