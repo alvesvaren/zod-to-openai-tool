@@ -1,5 +1,9 @@
 # zod-to-openai-tool
 
+![npm](https://img.shields.io/npm/v/zod-to-openai-tool)
+![npm](https://img.shields.io/npm/dw/zod-to-openai-tool)
+
+
 Easily create tools from zod schemas to use with OpenAI Assistants and Chat Completions.
 
 ## Usage

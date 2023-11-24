@@ -8,7 +8,7 @@
     "test": "vitest",
     "dev": "tsx watch examples/basic-usage.ts",
     "build": "tsup",
-    "release": "pnpm run build && changeset publish",
+    "release": "pnpm run build",
     "prepublish": "pnpm run release"
   },
   "files": [
