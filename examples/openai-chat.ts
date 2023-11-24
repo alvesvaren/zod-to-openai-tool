@@ -6,14 +6,14 @@ It uses the new tools api (instead of the old function calling api), so all mode
 
 import OpenAI from "openai";
 import { createInterface } from "readline";
-import { createTools, tool } from "../src";
+import { createTools, t } from "../src";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 const { tools, processChatActions } = createTools({
-  getRandomNumber: tool().run(() => Math.floor(Math.random() * 100)),
+  getRandomNumber: t.run(() => Math.floor(Math.random() * 100)),
 });
 
 const messages: OpenAI.ChatCompletionMessageParam[] = [];

@@ -1,7 +1,5 @@
-import { it } from "vitest";
-import { describe } from "vitest";
-import { expect } from "vitest";
-import { deepRemoveKey } from "./utils";
+import { describe, expect, it } from "vitest";
+import { deepRemoveKey } from "./utils.js";
 
 describe("deepRemoveKey()", () => {
   it("should remove a key from a nested object", () => {

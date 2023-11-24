@@ -9,10 +9,10 @@ Easily create tools from zod schemas to use with OpenAI Assistants and Chat Comp
 ## Usage
 
 ```ts
-import { tool, createTools } from "zod-to-openai-tool";
+import { t, createTools } from "zod-to-openai-tool";
 
-const { tools, processAssistantActions } = createTools({
-  getWeather: tool()
+const { t, processAssistantActions } = createTools({
+  getWeather: t
     .input(z.object({ city: z.string() }))
     .describe("Get the weather in a city")
     .run(({ city }) => `The weather in ${city} is sunny`),

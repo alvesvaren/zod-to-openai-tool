@@ -1,15 +1,32 @@
+import type { OpenAI } from "openai";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import type { OpenAI } from "openai";
 import { deepRemoveKey } from "./utils.js";
 interface Steps<T = void, Omitted extends string = never> {
+  /**
+   * Adds a schema for the tool. This will be used to validate the input and to infer the type of the input in the `run()` function.
+   * @param s The schema for the input. Must be a `z.object({})`
+   * @returns A tool with the input schema set.
+   */
   input<S extends z.AnyZodObject>(
     schema: S,
   ): Omit<Steps<z.infer<S>, Omitted | "input">, "input" | Omitted> &
     InternalTool;
+  /**
+   * The function to run when the model calls the tool. This is the only required builder step.
+   * @param args The arguments for the `run()` function.
+   *   The type of the arguments will be inferred from the input schema. If there is no input schema, the type will be `void`.
+   * @returns A tool with the `run()` function set.
+   */
   run(
     func: (input: T extends void ? never : T) => unknown,
   ): Omit<Steps<T, Omitted | "run">, "run" | "input" | Omitted> & InternalTool;
+  /**
+   * Adds a description to the tool. This will be provided to the model to aid in understanding the tool.
+   * @param d The description of the tool as a string.
+   *   It is good to explain what data the tool returns and what it does here.
+   * @returns A tool with the description set.
+   */
   describe(
     description: string,
   ): Omit<Steps<T, Omitted | "describe">, Omitted | "describe"> & InternalTool;
@@ -31,22 +48,6 @@ type OpenAIBuiltInTool = OpenAI.Beta.Assistant["tools"][number];
 export type Tool<T = void, O extends string = never> = Steps<T, O> &
   InternalTool;
 
-/**
- * Creates a tool for use with openai assistants
- * @example
- * ```ts
- * const getWeather = tool()
- *   .input(
- *     z.object({
- *       city: z.string(),
- *      }))
- *   .describe("Gets the weather")
- *   .run(async ({ city }) => ({
- *     weather: "sunny",
- *   }));
- * ```
- * @returns A `Tool` that can be used with `createTools()`.
- */
 function tool<T = void>(): Tool<T> {
   const data: Data = {
     schema: z.object({}),
@@ -79,7 +80,22 @@ function tool<T = void>(): Tool<T> {
   };
 }
 
-export const t = {
+/**
+ * Creates a tool for use with openai assistants
+ * @example
+ * ```ts
+ * const getWeather = t
+ *   .input(
+ *     z.object({
+ *       city: z.string(),
+ *      }))
+ *   .describe("Gets the weather")
+ *   .run(async ({ city }) => ({
+ *     weather: "sunny",
+ *   }));
+ * ```
+ */
+export const t: Steps<void> = {
   input<S extends z.AnyZodObject>(s: S) {
     return tool().input<S>(s);
   },
@@ -101,8 +117,8 @@ export const t = {
  * @returns An object containing the tools and a function to process actions.
  * @example
  * ```ts
- * const { tools, processAssistantActions, processChatActions } = createTools({
- *   getWeather,  // These are created with `tool()`
+ * const { t, processAssistantActions, processChatActions } = createTools({
+ *   getWeather,  // These are created with `t.run()` and `t.input()`, see the example for `t`
  *   exponential,
  * });
  *

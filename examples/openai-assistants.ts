@@ -5,7 +5,7 @@ It also enables the code_interpreter tool provided by OpenAI.
 
 import OpenAI from "openai";
 import { createInterface } from "readline";
-import { combineTools, createTools, tool } from "../src";
+import { combineTools, createTools, t } from "../src";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -13,7 +13,7 @@ const openai = new OpenAI({
 
 const { tools, processAssistantActions } = combineTools(
   createTools({
-    getRandomNumber: tool().run(() => Math.floor(Math.random() * 100)),
+    getRandomNumber: t.run(() => Math.floor(Math.random() * 100)),
   }),
   { type: "code_interpreter" },
 );
