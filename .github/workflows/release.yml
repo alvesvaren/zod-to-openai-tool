@@ -30,7 +30,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: pnpm publish
+          publish: 'pnpm publish && changeset tag && git push --follow-tags'
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
