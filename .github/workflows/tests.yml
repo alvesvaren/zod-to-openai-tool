@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
-      - run: pnpm changeset status --since=main
       - run: pnpm i --frozen-lockfile
+      - run: pnpm changeset status --since=origin/main
       - run: pnpm test
       - run: pnpm build
