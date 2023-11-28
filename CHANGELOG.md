@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.11.5
+
+### Patch Changes
+
+- 2de76f8: Update release.yml
+
 ## 0.11.4
 
 ### Patch Changes
