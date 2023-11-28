@@ -1,4 +1,4 @@
-name: Release
+name: Changesets
 
 on:
   push:
@@ -34,3 +34,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: pnpm publish
