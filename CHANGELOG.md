@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.11.3
+
+### Patch Changes
+
+- 3b081b5: Update build dependencies
+
 ## 0.11.2
 
 ### Patch Changes
