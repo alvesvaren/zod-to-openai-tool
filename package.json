@@ -8,7 +8,7 @@
     "test": "vitest ; tsc",
     "dev": "tsx watch examples/basic-usage.ts",
     "build": "tsup",
-    "release": "pnpm run build",
+    "release": "pnpm run build && pnpm changeset tag && git push --follow-tags",
     "prepublish": "pnpm run release"
   },
   "files": [
