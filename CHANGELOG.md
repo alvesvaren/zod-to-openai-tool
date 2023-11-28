@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.11.4
+
+### Patch Changes
+
+- fe431f2: Add github releases flag
+
 ## 0.11.3
 
 ### Patch Changes
