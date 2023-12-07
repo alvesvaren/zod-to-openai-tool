@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.11.9
+
+### Patch Changes
+
+- ec6a1de: Bump the development-dependencies group with 1 update
+
 ## 0.11.8
 
 ### Patch Changes
