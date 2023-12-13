@@ -7,7 +7,7 @@ settings:
 dependencies:
   zod-to-json-schema:
     specifier: ^3.21.4
-    version: 3.22.1(zod@3.22.4)
+    version: 3.22.2(zod@3.22.4)
 
 devDependencies:
   '@changesets/cli':
@@ -3915,8 +3915,8 @@ packages:
     engines: {node: '>=12.20'}
     dev: true
 
-  /zod-to-json-schema@3.22.1(zod@3.22.4):
-    resolution: {integrity: sha512-bVSWQ2JF3ZglQefafkM+Kk9KQ2fqqSi4VhxWaup1NJX9FS5jDg0EkEioVCWui0PiIQvcXJUjmN71bg672+a+tA==}
+  /zod-to-json-schema@3.22.2(zod@3.22.4):
+    resolution: {integrity: sha512-y21A75dhLD674m5eO7rF16Wqvk4sIxbBYeguBt49yA0ttndDkbQtMAYOxSO2U563wjxIAucGKMjTR5UnzHyYMw==}
     peerDependencies:
       zod: ^3.22.4
     dependencies:
