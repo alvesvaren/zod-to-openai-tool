@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.11.12
+
+### Patch Changes
+
+- baa4aad: Bump the production-dependencies group with 1 update
+
 ## 0.11.11
 
 ### Patch Changes
