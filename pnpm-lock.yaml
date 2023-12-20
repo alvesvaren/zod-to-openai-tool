@@ -18,7 +18,7 @@ devDependencies:
     version: 20.10.5
   openai:
     specifier: ^4.19.0
-    version: 4.23.0
+    version: 4.24.0
   prettier:
     specifier: ^3.1.0
     version: 3.1.1
@@ -2508,8 +2508,8 @@ packages:
       mimic-fn: 4.0.0
     dev: true
 
-  /openai@4.23.0:
-    resolution: {integrity: sha512-ey2CXh1OTcTUa0AWZWuTpgA9t5GuAG3DVU1MofCRUI7fQJij8XJ3Sr0VtgxoAE69C9wbHBMCux8Z/IQZfSwHiA==}
+  /openai@4.24.0:
+    resolution: {integrity: sha512-h8fsas4lu0ul18oDzFIZpEQryh2SJEUJWanyfEwjME/klcKWZM/blDz2cKiT+aFBqPJzcYdCUj/8E7n20f0jEw==}
     hasBin: true
     dependencies:
       '@types/node': 18.19.3
