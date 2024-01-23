@@ -1,5 +1,12 @@
 # zod-to-openai-tool
 
+## 0.11.19
+
+### Patch Changes
+
+- bf8acf2: Bump the development-dependencies group with 4 updates
+- 439af89: Bump vite from 5.0.11 to 5.0.12
+
 ## 0.11.18
 
 ### Patch Changes
