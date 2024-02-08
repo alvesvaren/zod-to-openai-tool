@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.11.22
+
+### Patch Changes
+
+- 2ed4b32: Bump the development-dependencies group with 2 updates
+
 ## 0.11.21
 
 ### Patch Changes
