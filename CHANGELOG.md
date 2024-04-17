@@ -1,5 +1,12 @@
 # zod-to-openai-tool
 
+## 0.11.25
+
+### Patch Changes
+
+- 0351d2e: Bump the production-dependencies group with 1 update
+- 6e6a998: Bump vite from 5.1.4 to 5.2.8
+
 ## 0.11.24
 
 ### Patch Changes
