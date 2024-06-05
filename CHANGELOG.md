@@ -1,5 +1,11 @@
 # zod-to-openai-tool
 
+## 0.11.26
+
+### Patch Changes
+
+- 2921273: Bump zod-to-json-schema from 3.22.5 to 3.23.0 in the production-dependencies group
+
 ## 0.11.25
 
 ### Patch Changes
