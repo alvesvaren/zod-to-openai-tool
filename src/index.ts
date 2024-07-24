@@ -99,13 +99,13 @@ function tool<T = void>(): Tool<T> {
  */
 export const t: Steps<void> & {
   /**
-   * Alias to the `code_interpreter` tool
-   * @see https://platform.openai.com/docs/assistants/tools/code-interpreter
+   * Alias to the `file_search` tool
+   * @see https://platform.openai.com/docs/assistants/tools/knowledge-retrieval
    */
   fileSearch: OpenAI.Beta.FileSearchTool;
   /**
-   * Alias to the `retrieval` tool
-   * @see https://platform.openai.com/docs/assistants/tools/knowledge-retrieval
+   * Alias to the `code_interpreter` tool
+   * @see https://platform.openai.com/docs/assistants/tools/code-interpreter
    */
   codeInterpreter: OpenAI.Beta.CodeInterpreterTool;
 } = {
