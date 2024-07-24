@@ -40,7 +40,7 @@ This package exports the following functions:
 
 - `t` - Used to create a new tool
 - `createTools(tools)` - Used to convert tools to the openai format (and give them a name)
-- `combineTools(...tools)` - Used to combine multiple tools into one (including Code Interpreter and Retrieval)
+- `combineTools(...tools)` - Used to combine multiple tools into one (including Code Interpreter and File Search)
 
 ## Installation
 
