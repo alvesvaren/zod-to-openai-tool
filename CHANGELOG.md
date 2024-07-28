@@ -1,5 +1,18 @@
 # zod-to-openai-tool
 
+## 0.12.0
+
+### Minor Changes
+
+- 27d314c: Replace the retrieval tool with file_search
+- 27d314c: Update openai package version (may change some types)
+
+### Patch Changes
+
+- 27d314c: Update readme and examples to use gpt-4o-mini
+- 2921273: Bump zod-to-json-schema from 3.22.5 to 3.23.0 in the production-dependencies group
+- 0eec5bb: Use pnpm v9
+
 ## 0.11.25
 
 ### Patch Changes
