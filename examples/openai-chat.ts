@@ -24,7 +24,7 @@ for await (const content of createInterface({ input: process.stdin })) {
   });
 
   const completion = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo-1106",
+    model: "gpt-4o-mini",
     messages,
     tools,
   });
@@ -34,7 +34,7 @@ for await (const content of createInterface({ input: process.stdin })) {
     const tool_outputs = await processChatActions(message.tool_calls);
     messages.push(...tool_outputs);
     const completion2 = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo-1106",
+      model: "gpt-4o-mini",
       messages,
       tools,
     });

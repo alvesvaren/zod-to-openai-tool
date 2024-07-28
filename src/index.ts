@@ -42,7 +42,7 @@ interface Data {
 
 interface InternalTool {
   _data: Data;
-  _parameters: OpenAI.Beta.AssistantCreateParams.AssistantToolsFunction["function"]["parameters"];
+  _parameters: OpenAI.Beta.FunctionTool["function"]["parameters"];
 }
 
 type OpenAIBuiltInTool = OpenAI.Beta.Assistant["tools"][number];
@@ -99,15 +99,15 @@ function tool<T = void>(): Tool<T> {
  */
 export const t: Steps<void> & {
   /**
+   * Alias to the `file_search` tool
+   * @see https://platform.openai.com/docs/assistants/tools/knowledge-retrieval
+   */
+  fileSearch: OpenAI.Beta.FileSearchTool;
+  /**
    * Alias to the `code_interpreter` tool
    * @see https://platform.openai.com/docs/assistants/tools/code-interpreter
    */
-  retrieval: OpenAI.Beta.Assistant.Retrieval;
-  /**
-   * Alias to the `retrieval` tool
-   * @see https://platform.openai.com/docs/assistants/tools/knowledge-retrieval
-   */
-  codeInterpreter: OpenAI.Beta.Assistant.CodeInterpreter;
+  codeInterpreter: OpenAI.Beta.CodeInterpreterTool;
 } = {
   input<S extends z.AnyZodObject>(s: S) {
     return tool().input<S>(s);
@@ -119,7 +119,7 @@ export const t: Steps<void> & {
     return tool().describe(d);
   },
   codeInterpreter: { type: "code_interpreter" },
-  retrieval: { type: "retrieval" },
+  fileSearch: { type: "file_search" },
 };
 
 /**
@@ -176,7 +176,7 @@ export function createTools<T>(
 
   return {
     tools: Object.entries<_Tool>(tools).map(
-      ([name, tool]): OpenAI.Beta.AssistantCreateParams.AssistantToolsFunction &
+      ([name, tool]): OpenAI.Beta.FunctionTool &
         OpenAI.Chat.Completions.ChatCompletionTool => {
         const parameters = tool._parameters;
         return {

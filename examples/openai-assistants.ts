@@ -20,7 +20,7 @@ const { tools, processAssistantActions } = combineTools(
 
 const assistantData: OpenAI.Beta.AssistantUpdateParams &
   OpenAI.Beta.AssistantCreateParams = {
-  model: "gpt-4-1106-preview",
+  model: "gpt-4o-mini",
   tools,
 };
 
@@ -76,7 +76,9 @@ for await (const content of createInterface({ input: process.stdin })) {
   const finalMessageContent = messages.data[0].content[0];
   if (finalMessageContent.type === "text") {
     console.log(finalMessageContent.text.value);
-  } else {
+  } else if (finalMessageContent.type === "image_file") {
     console.log(finalMessageContent.image_file.file_id);
+  } else {
+    console.log(finalMessageContent.image_url.url);
   }
 }

@@ -104,7 +104,7 @@ describe("createTools() - types", () => {
       test: t.input(z.object({ name: z.string() })),
       testWithRun: t.input(z.object({ name: z.string() })).run(() => {}),
     });
-  })
+  });
 });
 
 describe("combineTools()", () => {
@@ -157,7 +157,7 @@ describe("combineTools()", () => {
   it("should combine openai tools correctly too", () => {
     const combinedTools = combineTools(
       { type: "code_interpreter" },
-      { type: "retrieval" },
+      { type: "file_search" },
     );
     expect(combinedTools).toEqual({
       processChatActions: expect.any(Function),
@@ -167,7 +167,7 @@ describe("combineTools()", () => {
           type: "code_interpreter",
         },
         {
-          type: "retrieval",
+          type: "file_search",
         },
       ],
     });
