@@ -6,6 +6,7 @@ describe("t", () => {
   it("should return a valid empty json schema", () => {
     const emptySchema = t.run(() => {})._parameters;
     expect(emptySchema).toEqual({
+      additionalProperties: false,
       type: "object",
       properties: {},
     });
@@ -23,6 +24,7 @@ describe("t", () => {
 
     expect(complexSchema._parameters).toEqual({
       type: "object",
+      additionalProperties: false,
       properties: {
         name: {
           type: "string",
@@ -30,6 +32,7 @@ describe("t", () => {
           default: expect.any(Object),
         },
         address: {
+          additionalProperties: false,
           type: "object",
           properties: {
             street: {
@@ -88,6 +91,7 @@ describe("createTools()", () => {
           description: "hello",
           name: "test",
           parameters: {
+            additionalProperties: false,
             type: "object",
             properties: {},
           },
@@ -135,6 +139,7 @@ describe("combineTools()", () => {
             description: "hello",
             name: "tool",
             parameters: {
+              additionalProperties: false,
               type: "object",
               properties: {},
             },
@@ -146,6 +151,7 @@ describe("combineTools()", () => {
             description: "world",
             name: "anotherTool",
             parameters: {
+              additionalProperties: false,
               type: "object",
               properties: {},
             },

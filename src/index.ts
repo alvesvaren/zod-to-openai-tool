@@ -1,7 +1,6 @@
 import type { OpenAI } from "openai";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { deepRemoveKey } from "./utils.js";
 interface Steps<T = void, Omitted extends string = never> {
   /**
    * Adds a schema for the tool. This will be used to validate the input and to infer the type of the input in the `run()` function.
@@ -77,7 +76,7 @@ function tool<T = void>(): Tool<T> {
     /** @internal */
     get _parameters() {
       const { $schema, ...parameters } = zodToJsonSchema(data.schema);
-      return deepRemoveKey(parameters, "additionalProperties");
+      return parameters;
     },
   };
 }
