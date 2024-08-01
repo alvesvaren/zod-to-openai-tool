@@ -1,5 +1,16 @@
 # zod-to-openai-tool
 
+## 0.13.0
+
+### Minor Changes
+
+- bf55b2c: Possibly Breaking Change: No longer removes additionalProperties from the schema, as that is handled correctly in the openai api itself now and doesn't seem to affect token counts anymore
+
+### Patch Changes
+
+- f4fa0ae: Bump the development-dependencies group with 3 updates
+- eb63600: Bump tsx from 4.16.3 to 4.16.5 in the development-dependencies group across 1 directory
+
 ## 0.12.0
 
 ### Minor Changes
