@@ -26,10 +26,10 @@ importers:
         version: 3.3.3
       tsup:
         specifier: ^8.2.3
-        version: 8.2.3(postcss@8.4.40)(tsx@4.16.3)(typescript@5.5.4)
+        version: 8.2.3(postcss@8.4.40)(tsx@4.16.5)(typescript@5.5.4)
       tsx:
         specifier: ^4.16.2
-        version: 4.16.3
+        version: 4.16.5
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -1376,8 +1376,8 @@ packages:
       typescript:
         optional: true
 
-  tsx@4.16.3:
-    resolution: {integrity: sha512-MP8AEUxVnboD2rCC6kDLxnpDBNWN9k3BSVU/0/nNxgm70bPBnfn+yCKcnOsIVPQwdkbKYoFOlKjjWZWJ2XCXUg==}
+  tsx@4.16.5:
+    resolution: {integrity: sha512-ArsiAQHEW2iGaqZ8fTA1nX0a+lN5mNTyuGRRO6OW3H/Yno1y9/t1f9YOI1Cfoqz63VAthn++ZYcbDP7jPflc+A==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -2559,12 +2559,12 @@ snapshots:
     dependencies:
       find-up: 4.1.0
 
-  postcss-load-config@6.0.1(postcss@8.4.40)(tsx@4.16.3):
+  postcss-load-config@6.0.1(postcss@8.4.40)(tsx@4.16.5):
     dependencies:
       lilconfig: 3.1.2
     optionalDependencies:
       postcss: 8.4.40
-      tsx: 4.16.3
+      tsx: 4.16.5
 
   postcss@8.4.40:
     dependencies:
@@ -2751,7 +2751,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  tsup@8.2.3(postcss@8.4.40)(tsx@4.16.3)(typescript@5.5.4):
+  tsup@8.2.3(postcss@8.4.40)(tsx@4.16.5)(typescript@5.5.4):
     dependencies:
       bundle-require: 5.0.0(esbuild@0.23.0)
       cac: 6.7.14
@@ -2763,7 +2763,7 @@ snapshots:
       globby: 11.1.0
       joycon: 3.1.1
       picocolors: 1.0.1
-      postcss-load-config: 6.0.1(postcss@8.4.40)(tsx@4.16.3)
+      postcss-load-config: 6.0.1(postcss@8.4.40)(tsx@4.16.5)
       resolve-from: 5.0.0
       rollup: 4.19.1
       source-map: 0.8.0-beta.0
@@ -2778,7 +2778,7 @@ snapshots:
       - tsx
       - yaml
 
-  tsx@4.16.3:
+  tsx@4.16.5:
     dependencies:
       esbuild: 0.21.5
       get-tsconfig: 4.7.6
