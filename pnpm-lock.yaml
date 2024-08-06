@@ -20,7 +20,7 @@ importers:
         version: 22.1.0
       openai:
         specifier: ^4.53.2
-        version: 4.54.0
+        version: 4.55.0(zod@3.23.8)
       prettier:
         specifier: ^3.3.3
         version: 3.3.3
@@ -1051,9 +1051,14 @@ packages:
     resolution: {integrity: sha512-1FlR+gjXK7X+AsAHso35MnyN5KqGwJRi/31ft6x0M194ht7S+rWAvd7PHss9xSKMzE0asv1pyIHaJYq+BbacAQ==}
     engines: {node: '>=12'}
 
-  openai@4.54.0:
-    resolution: {integrity: sha512-e/12BdtTtj+tXs7iHm+Dm7H7WjEWnw7O52B2wSfCQ6lD5F6cvjzo7cANXy5TJ1Q3/qc8YRPT5wBTTFtP5sBp1g==}
+  openai@4.55.0:
+    resolution: {integrity: sha512-BR3TUybzdqNeBMgEFvxgBrFks9FY2NoP2jyTf7LT4UxPv8chevRKSxKezsINVSeQ/QLA12CALR1oco6KVdVpVA==}
     hasBin: true
+    peerDependencies:
+      zod: ^3.23.8
+    peerDependenciesMeta:
+      zod:
+        optional: true
 
   os-tmpdir@1.0.2:
     resolution: {integrity: sha512-D2FR03Vir7FIu45XBY20mTb+/ZSWB00sjU9jdQXt83gDrI4Ztz5Fs7/yy74g2N5SVQY4xY1qDr4rNddwYRVX0g==}
@@ -2488,7 +2493,7 @@ snapshots:
     dependencies:
       mimic-fn: 4.0.0
 
-  openai@4.54.0:
+  openai@4.55.0(zod@3.23.8):
     dependencies:
       '@types/node': 18.19.43
       '@types/node-fetch': 2.6.11
@@ -2497,6 +2502,8 @@ snapshots:
       form-data-encoder: 1.7.2
       formdata-node: 4.4.1
       node-fetch: 2.7.0
+    optionalDependencies:
+      zod: 3.23.8
     transitivePeerDependencies:
       - encoding
 
