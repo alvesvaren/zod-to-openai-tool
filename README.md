@@ -34,7 +34,9 @@ await openai.beta.threads.runs.submitToolOutputs(thread.id, run.id, {
 });
 ```
 
-> See the examples folder and the JSDocs for more examples and information. 
+> See the examples folder and the JSDocs for more examples and information.
+> 
+> See [homeassistant-chatbot-zod](https://github.com/alvesvaren/homeassistant-chatbot-zod) for another more useful example :)
 
 This package exports the following functions:
 
