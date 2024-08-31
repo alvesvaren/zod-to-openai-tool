@@ -1,5 +1,13 @@
 # zod-to-openai-tool
 
+## 0.13.2
+
+### Patch Changes
+
+- 1b5b4e9: Bump openai from 4.55.4 to 4.55.6 in the development-dependencies group
+- fd8ffa1: Bump the development-dependencies group across 1 directory with 3 updates
+- a502283: Bump the development-dependencies group across 1 directory with 3 updates
+
 ## 0.13.1
 
 ### Patch Changes
