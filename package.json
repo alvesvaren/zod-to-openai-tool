@@ -38,15 +38,15 @@
   "author": "Alve Svarén",
   "license": "ISC",
   "devDependencies": {
-    "@changesets/cli": "^2.27.7",
-    "@types/node": "^22.0.0",
-    "openai": "^4.53.2",
+    "@changesets/cli": "^3.0.3",
+    "@types/node": "^26.6.5",
+    "openai": "^7.32.0",
     "prettier": "^3.3.3",
     "tsup": "^8.2.3",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.4",
-    "vitest": "^2.0.4",
-    "zod": "^3.22.4"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.4",
+    "zod": "^4.6.7"
   },
   "dependencies": {
     "zod-to-json-schema": "^3.23.2"
